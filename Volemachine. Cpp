@@ -1,0 +1,29 @@
+#include "VoleMachine.h"
+#include "ProgramLoader.h"
+#include <iomanip>
+#include <iostream>
+using namespace std;
+
+bool VoleMachine::loadPrg(const string &fn, uint8_t st, string &ErrMsg)
+{
+    ErrMsg.clear();
+    uint8_t adr = 0;
+    if (!ProgramLoader::loadFromFile(fn, mem, st, adr, ErrMsg))
+        return false;
+
+    cpu.reset();
+    if (!cpu.setPC(adr, ErrMsg))
+        return false;
+    scr.clear();
+    return true;
+}
+
+bool VoleMachine::step(string &ErrMsg)
+{
+    ErrMsg.clear();
+    if (cpu.isHalted())
+        return true;
+    return cpu.step(mem, scr, ErrMsg);
+}
+
+bool VoleMachine::run(string &ErrMsg)
